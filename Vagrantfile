@@ -14,6 +14,20 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
   config.vm.box = "ubuntu/bionic64"
 
+  config.vm.network "forwarded_port", guest: 8000, host: 8000
+
+  config.vm.provision "shell", inline: <<-SHELL
+     systemctl disable apt-daily.service
+     systemctl disable apt-daily.timer
+     sudo apt-get update
+     sudo apt-get install -y python3-venv zip
+     touch /home/vagrant/.bash_aliases
+     if ! grep -q PYTHON_ALIAS_ADDED /home/vagrant/.bash_aliases; then
+       echo "# PYTHON_ALIAS_ADDED" >> /home/vagrant/.bash_aliases
+       echo "alias python='python3'" >> /home/vagrant/.bash_aliases
+     fi
+   SHELL
+  end
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
@@ -67,4 +81,4 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
-end
+#end
